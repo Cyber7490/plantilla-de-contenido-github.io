@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plantillas de Contenido</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #080b12;
+    --surface:   #0e1220;
+    --surface2:  #131928;
+    --border:    rgba(255,255,255,0.07);
+    --border-hi: rgba(255,255,255,0.14);
+    --gold:      #c9a96e;
+    --gold-dim:  #8a6d42;
+    --cream:     #f0e6d3;
+    --muted:     #6b7a96;
+    --text:      #dde4f0;
+    --accent1:   #4f8ef7;
+    --accent2:   #e86b8a;
+    --accent3:   #54c4a0;
+    --accent4:   #f0c05a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ── AMBIENT GLOW ── */
+  .ambient {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 15% 10%, rgba(79,142,247,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 80%, rgba(201,169,110,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 60% at 50% 50%, rgba(13,18,32,0.8) 0%, transparent 100%);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    position: relative; z-index: 1;
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(79,142,247,0.04) 0%, transparent 100%);
+  }
+
+  .header-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+  }
+  .header-eyebrow::before, .header-eyebrow::after {
+    content: '';
+    display: block; width: 32px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim));
+  }
+  .header-eyebrow::after { background: linear-gradient(90deg, var(--gold-dim), transparent); }
+
+  .header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    color: var(--cream);
+    margin-bottom: 1rem;
+  }
+  .header h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .header-sub {
+    font-size: 0.9rem;
+    font-weight: 300;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── TABS ── */
+  .tabs-wrap {
+    position: relative; z-index: 1;
+    display: flex; justify-content: center; gap: 0.5rem;
+    padding: 2rem 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.65rem 1.6rem 0.75rem;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative; bottom: -1px;
+  }
+  .tab:hover { color: var(--text); border-color: var(--border); }
+  .tab.active {
+    color: var(--cream);
+    background: var(--surface);
+    border-color: var(--border);
+    border-bottom-color: var(--surface);
+  }
+
+  /* ── CONTAINER ── */
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  /* ── CARDS GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(.22,.68,0,1.2);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(201,169,110,0.04) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .card:hover { border-color: var(--border-hi); transform: translateY(-3px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+  .card:hover::before { opacity: 1; }
+
+  .card-emoji { font-size: 1.8rem; margin-bottom: 1rem; display: block; }
+
+  .card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.35rem;
+    font-weight: 400;
+    color: var(--cream);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.01em;
+  }
+
+  .card-meta {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 1.1rem;
+    letter-spacing: 0.03em;
+  }
+
+  .card-badges { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 1.2rem; }
+
+  .badge {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    border-radius: 3px;
+    border: 1px solid;
+  }
+
+  .card-link {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: flex; align-items: center; gap: 0.4rem;
+    transition: gap 0.2s;
+  }
+  .card:hover .card-link { gap: 0.7rem; }
+
+  /* ── DETAIL VIEW ── */
+  .back-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0 0 2.5rem;
+    transition: color 0.2s;
+  }
+  .back-btn:hover { color: var(--cream); }
+
+  .detail-header {
+    display: flex; align-items: flex-start; gap: 1.5rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .detail-emoji { font-size: 3rem; line-height: 1; }
+
+  .detail-info { flex: 1; min-width: 180px; }
+  .detail-info h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin-bottom: 0.3rem;
+  }
+  .detail-info .sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .export-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.65rem 1.4rem;
+    background: transparent;
+    border: 1px solid var(--gold-dim);
+    border-radius: 4px;
+    color: var(--gold);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    margin-top: 0.25rem;
+  }
+  .export-btn:hover { background: rgba(201,169,110,0.08); border-color: var(--gold); }
+  .export-btn.success { background: rgba(84,196,160,0.1); border-color: var(--accent3); color: var(--accent3); }
+
+  /* ── BLOCKS ── */
+  .blocks { display: flex; flex-direction: column; gap: 0.875rem; margin-bottom: 2.5rem; }
+
+  .block {
+    display: flex; gap: 1rem; align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left-width: 3px;
+    border-radius: 0 10px 10px 0;
+    padding: 1.1rem 1.25rem;
+    transition: border-color 0.2s, background 0.2s;
+    animation: fadeUp 0.35s ease both;
+  }
+  .block:hover { background: var(--surface2); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .block-num {
+    min-width: 22px; height: 22px;
+    border-radius: 50%;
+    font-size: 0.65rem; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+    color: #fff;
+  }
+
+  .block-body { flex: 1; }
+
+  .block-label-row {
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: 0.4rem; flex-wrap: wrap;
+  }
+
+  .block-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--cream);
+    letter-spacing: 0.01em;
+  }
+
+  .type-pill {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.45rem;
+    border-radius: 2px;
+    color: #fff;
+  }
+
+  .block-hint {
+    font-size: 0.83rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--muted);
+    white-space: pre-line;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .copy-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.7rem;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .copy-btn:hover { border-color: var(--border-hi); color: var(--text); }
+  .copy-btn.success { border-color: var(--accent3); color: var(--accent3); }
+
+  /* ── TIPS ── */
+  .tips-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem;
+  }
+
+  .tips-box h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--cream);
+    margin-bottom: 1rem;
+    letter-spacing: 0.02em;
+  }
+
+  .tips-box ul { list-style: none; padding: 0; }
+  .tips-box li {
+    font-size: 0.83rem;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 0.55rem;
+    padding-left: 1.1rem;
+    position: relative;
+  }
+  .tips-box li::before {
+    content: '—';
+    position: absolute; left: 0;
+    color: var(--gold-dim);
+    font-size: 0.75rem;
+  }
+
+  .hidden { display: none !important; }
+
+  /* ── STAGGER ANIMATION FOR CARDS ── */
+  .card { animation: fadeUp 0.4s ease both; }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.12s; }
+  .card:nth-child(3) { animation-delay: 0.19s; }
+
+  .block:nth-child(1)  { animation-delay: 0.03s; }
+  .block:nth-child(2)  { animation-delay: 0.08s; }
+  .block:nth-child(3)  { animation-delay: 0.13s; }
+  .block:nth-child(4)  { animation-delay: 0.18s; }
+  .block:nth-child(5)  { animation-delay: 0.23s; }
+  .block:nth-child(6)  { animation-delay: 0.28s; }
+  .block:nth-child(7)  { animation-delay: 0.33s; }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-eyebrow">Kit de Contenido Educativo</div>
+  <h1>Plantillas de <em>Contenido</em></h1>
+  <p class="header-sub">6 estructuras probadas para crear contenido que educa e inspira</p>
+</header>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <button class="tab active" onclick="switchTab('blog', this)">📝 Blog &amp; Artículos</button>
+  <button class="tab" onclick="switchTab('social', this)">📱 Redes Sociales</button>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+  <div id="cards-view">
+    <div class="grid" id="cards-grid"></div>
+  </div>
+  <div id="detail-view" class="hidden"></div>
+</div>
+
+<script>
+const C = {
+  title:   { bg:'rgba(240,192,90,0.08)',  border:'#c9a96e', num:'#c9a96e', label:'Título'  },
+  hook:    { bg:'rgba(232,107,138,0.08)', border:'#e86b8a', num:'#e86b8a', label:'Hook'    },
+  section: { bg:'rgba(79,142,247,0.07)',  border:'#4f8ef7', num:'#4f8ef7', label:'Sección' },
+  cta:     { bg:'rgba(84,196,160,0.08)',  border:'#54c4a0', num:'#54c4a0', label:'CTA'     },
+};
+
+const T = {
+  blog: [
+    { id:'b1', name:'Guía Definitiva', emoji:'📚',
+      structure:[
+        {label:'Título',                   hint:'La guía definitiva para [TEMA] en [AÑO]', type:'title'},
+        {label:'Intro — El problema',      hint:'¿Te ha pasado que [PROBLEMA COMÚN]? No estás solo/a.\nEn este artículo vas a aprender [PROMESA CONCRETA].', type:'hook'},
+        {label:'Sección 1 — ¿Qué es?',    hint:'Define el concepto en términos simples. Usa una analogía cotidiana.', type:'section'},
+        {label:'Sección 2 — Por qué importa', hint:'3 razones con datos o ejemplos reales de por qué tu lector debe prestar atención.', type:'section'},
+        {label:'Sección 3 — Paso a paso', hint:'Numera los pasos. Sé específico/a. Incluye capturas, ejemplos o mini-ejercicios.', type:'section'},
+        {label:'Sección 4 — Errores comunes', hint:'Lista 3–5 errores que comete la mayoría y cómo evitarlos.', type:'section'},
+        {label:'CTA / Cierre',            hint:'Resume en 2 oraciones. Invita a comentar o compartir.\nOfrece recurso gratuito opcional.', type:'cta'},
+      ],
+      tips:['Longitud ideal: 1,200–2,500 palabras','Incluye tabla de contenidos al inicio','Añade meta-descripción SEO de 155 caracteres'],
+    },
+    { id:'b2', name:'Listicle Educativo', emoji:'🔢',
+      structure:[
+        {label:'Título',                   hint:'[Número] [Cosas / Formas / Razones] para [RESULTADO DESEADO]', type:'title'},
+        {label:'Intro — Contexto rápido', hint:'2–3 oraciones que establezcan por qué esta lista es relevante HOY.', type:'hook'},
+        {label:'Punto 1 — [Nombre]',       hint:'Subtítulo llamativo + 80–150 palabras de explicación + ejemplo o dato.', type:'section'},
+        {label:'Puntos 2 al N',            hint:'Mismo formato: subtítulo + explicación + ejemplo.\nVariá el orden de mayor a menor impacto.', type:'section'},
+        {label:'Resumen visual o tabla',   hint:'Opcional pero muy valioso: resume todos los puntos en una tabla comparativa.', type:'section'},
+        {label:'CTA',                      hint:'¿Cuál de estos puntos vas a aplicar primero?\nCuéntame en los comentarios.', type:'cta'},
+      ],
+      tips:['Números impares funcionan mejor (7, 9, 11)','El punto más impactante va primero o último','Imágenes o iconos por punto aumentan el tiempo de lectura'],
+    },
+    { id:'b3', name:'Caso de Estudio', emoji:'🔬',
+      structure:[
+        {label:'Título',               hint:'Cómo [PERSONA / EMPRESA] logró [RESULTADO] con [MÉTODO] en [TIEMPO]', type:'title'},
+        {label:'Contexto / desafío',  hint:'¿Cuál era la situación inicial? Sé específico/a con los números de partida.', type:'hook'},
+        {label:'Estrategia aplicada', hint:'Describe qué se hizo, en qué orden y por qué se eligió ese enfoque.', type:'section'},
+        {label:'Resultados con datos',hint:'Antes vs. después. Métricas concretas: %, $, tiempo ahorrado, etc.', type:'section'},
+        {label:'Lecciones aprendidas',hint:'3 aprendizajes transferibles que tu lector puede aplicar en su contexto.', type:'section'},
+        {label:'CTA',                 hint:'¿Quieres aplicar esta estrategia?\nDescarga la plantilla / contáctame / lee este otro artículo.', type:'cta'},
+      ],
+      tips:['Los casos reales con datos específicos generan el mayor engagement','Incluye citas textuales si es posible','Añade gráficas de evolución'],
+    },
+  ],
+  social: [
+    { id:'s1', name:'Post Educativo', emoji:'💡',
+      structure:[
+        {label:'Hook — Línea 1',      hint:'La mayoría de las personas no sabe que [DATO SORPRENDENTE]. ↓', type:'hook'},
+        {label:'El problema',         hint:'Y eso les cuesta [CONSECUENCIA TANGIBLE].', type:'section'},
+        {label:'La solución',         hint:'Aquí los 3 pasos que cambiaron todo:\n→ Paso 1:\n→ Paso 2:\n→ Paso 3:', type:'section'},
+        {label:'Prueba / validación', hint:'Esto le funcionó a [EJEMPLO]. En [TIEMPO] logró [RESULTADO].', type:'section'},
+        {label:'CTA',                 hint:'¿Ya usabas esto? Comenta 🙌 o guarda este post para después.', type:'cta'},
+      ],
+      tips:['Máx. 300 palabras en LinkedIn, 150 en Instagram','Usa espacios en blanco entre cada bloque','Emojis con moderación (1–2 por bloque)'],
+    },
+    { id:'s2', name:'Hilo / Carrusel', emoji:'🎠',
+      structure:[
+        {label:'Slide 1 — Portada',      hint:'[NÚMERO] cosas que aprendí sobre [TEMA]\n(y que desearía haber sabido antes)', type:'title'},
+        {label:'Slide 2 — El problema',  hint:'Sin esto, [CONSECUENCIA NEGATIVA COMÚN].\nCon esto, [PROMESA].', type:'hook'},
+        {label:'Slides 3–8 — Puntos',    hint:'1 idea por slide. Título corto + 2–3 oraciones\n+ ícono o ilustración.', type:'section'},
+        {label:'Slide final — CTA',      hint:'Guarda este carrusel 🔖 y sígueme para más contenido sobre [TEMA].', type:'cta'},
+      ],
+      tips:['8–12 slides es el rango ideal','Tipografía grande y legible en móvil','Paleta de 2–3 colores consistente en todo el carrusel'],
+    },
+    { id:'s3', name:'Historia / Reflexión', emoji:'✍️',
+      structure:[
+        {label:'Hook narrativo',      hint:'Hace [TIEMPO], [YO / ALGUIEN] cometió un error que cambió todo.', type:'hook'},
+        {label:'El conflicto',        hint:'El problema era [X]. Y las consecuencias fueron [Y].', type:'section'},
+        {label:'El giro / aprendizaje',hint:'Entonces descubrí que [INSIGHT].\nY todo cambió cuando [ACCIÓN].', type:'section'},
+        {label:'Lección universal',   hint:'Si hay algo que esto me enseñó es:\n[PRINCIPIO APLICABLE A TODOS].', type:'section'},
+        {label:'CTA',                 hint:'¿Te ha pasado algo similar?\nMe gustaría leer tu historia en los comentarios.', type:'cta'},
+      ],
+      tips:['La vulnerabilidad auténtica conecta más que los logros','Termina con una pregunta abierta','Ideal para LinkedIn y Twitter/X'],
+    },
+  ],
+};
+
+let activeTab = 'blog';
+
+function allTemplates() { return [...T.blog, ...T.social]; }
+
+function switchTab(tab, el) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('detail-view').classList.add('hidden');
+  document.getElementById('cards-view').classList.remove('hidden');
+  renderCards();
+}
+
+function renderCards() {
+  const grid = document.getElementById('cards-grid');
+  grid.innerHTML = T[activeTab].map(tpl => {
+    const badges = tpl.structure.slice(0,4).map(s =>
+      `<span class="badge" style="background:${C[s.type].bg};border-color:${C[s.type].border};color:${C[s.type].border}">${C[s.type].label}</span>`
+    ).join('') + (tpl.structure.length > 4 ? `<span style="font-size:0.65rem;color:#6b7a96">+${tpl.structure.length-4}</span>` : '');
+    return `
+    <div class="card" onclick="showDetail('${tpl.id}')">
+      <span class="card-emoji">${tpl.emoji}</span>
+      <h3>${tpl.name}</h3>
+      <p class="card-meta">${tpl.structure.length} bloques &nbsp;·&nbsp; ${tpl.tips.length} consejos</p>
+      <div class="card-badges">${badges}</div>
+      <div class="card-link">Ver estructura <span>→</span></div>
+    </div>`;
+  }).join('');
+}
+
+function showDetail(id) {
+  const tpl = allTemplates().find(t => t.id === id);
+  document.getElementById('cards-view').classList.add('hidden');
+  const dv = document.getElementById('detail-view');
+  dv.classList.remove('hidden');
+  const catLabel = id.startsWith('b') ? 'Blog / Artículo' : 'Redes Sociales';
+
+  const blocksHtml = tpl.structure.map((b, i) => {
+    const c = C[b.type];
+    const cid = `${id}-${i}`;
+    return `
+    <div class="block" style="border-left-color:${c.border};background:${c.bg}">
+      <div class="block-num" style="background:${c.num}">${i+1}</div>
+      <div class="block-body">
+        <div class="block-label-row">
+          <span class="block-title">${b.label}</span>
+          <span class="type-pill" style="background:${c.num}">${c.label}</span>
+        </div>
+        <p class="block-hint">${b.hint}</p>
+      </div>
+      <button class="copy-btn" id="cb-${cid}" onclick="copyBlock(\`${b.hint.replace(/`/g,'\\`')}\`,'${cid}')">Copiar</button>
+    </div>`;
+  }).join('');
+
+  const tipsHtml = tpl.tips.map(t => `<li>${t}</li>`).join('');
+
+  dv.innerHTML = `
+    <button class="back-btn" onclick="goBack()">← Volver</button>
+    <div class="detail-header">
+      <span class="detail-emoji">${tpl.emoji}</span>
+      <div class="detail-info">
+        <h2>${tpl.name}</h2>
+        <p class="sub">${catLabel} &nbsp;·&nbsp; Educativo</p>
+      </div>
+      <button class="export-btn" id="exp-${id}" onclick="exportTpl('${id}')">📋 Copiar todo</button>
+    </div>
+    <div class="blocks">${blocksHtml}</div>
+    <div class="tips-box">
+      <h4>Consejos para esta plantilla</h4>
+      <ul>${tipsHtml}</ul>
+    </div>`;
+}
+
+function goBack() {
+  document.getElementById('detail-view').classList.add('hidden');
+  document.getElementById('cards-view').classList.remove('hidden');
+}
+
+function copyBlock(text, cid) {
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('cb-' + cid);
+    if (!btn) return;
+    btn.textContent = '✓'; btn.classList.add('success');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('success'); }, 1600);
+  });
+}
+
+function exportTpl(id) {
+  const tpl = allTemplates().find(t => t.id === id);
+  const text = `# ${tpl.name}\n\n` +
+    tpl.structure.map(s => `## ${s.label}\n${s.hint}\n`).join('\n') +
+    `\n---\nConsejos:\n` + tpl.tips.map(t => `- ${t}`).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('exp-' + id);
+    if (!btn) return;
+    btn.textContent = '✓ Copiado'; btn.classList.add('success');
+    setTimeout(() => { btn.textContent = '📋 Copiar todo'; btn.classList.remove('success'); }, 1600);
+  });
+}
+
+renderCards();
+</script>
+</body>
+</html>
